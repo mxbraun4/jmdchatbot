@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 from pathlib import Path
 from typing import Iterable, List
 
@@ -9,10 +8,7 @@ from llama_index.core import Document, SimpleDirectoryReader
 
 from src.config.settings import get_settings
 from src.indexing import get_index_manager
-
-
-def _hash_content(content: str) -> str:
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+from src.utils import hash_content
 
 
 def _normalize_rel_path(rel_path: str) -> str:
@@ -76,7 +72,7 @@ def _load_documents_from_files(files: List[Path]) -> List[Document]:
             {
                 "source": "local",
                 "path": file_path,
-                "content_hash": _hash_content(doc.text),
+                "content_hash": hash_content(doc.text),
                 "file_name": doc.metadata.get("file_name", Path(file_path).name),
                 "file_type": doc.metadata.get("file_type", Path(file_path).suffix),
             }

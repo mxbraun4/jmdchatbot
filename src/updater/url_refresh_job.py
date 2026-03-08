@@ -8,9 +8,7 @@ Run this periodically (e.g., every 5 minutes via cron/scheduler) to:
 """
 
 import asyncio
-import json
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Any, Dict, List
 
 import httpx
@@ -18,30 +16,8 @@ from llama_index.core import Document
 
 from src.config.settings import get_settings
 from src.indexing import get_index_manager
-
-
-URL_SOURCES_PATH = Path("data/url_sources.json")
-
-
-def load_url_sources() -> List[Dict[str, Any]]:
-    """Load URL sources from JSON file."""
-    if not URL_SOURCES_PATH.exists():
-        return []
-    try:
-        with open(URL_SOURCES_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"❌ Error loading URL sources: {e}")
-        return []
-
-
-def save_url_sources(sources: List[Dict[str, Any]]) -> None:
-    """Save URL sources to JSON file."""
-    try:
-        with open(URL_SOURCES_PATH, "w", encoding="utf-8") as f:
-            json.dump(sources, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f"❌ Error saving URL sources: {e}")
+from src.updater.url_sources import load_url_sources, save_url_sources
+from src.utils import hash_content
 
 
 def should_fetch(source: Dict[str, Any]) -> bool:
@@ -72,12 +48,6 @@ async def fetch_url_content(url: str, timeout: int = 30) -> str:
         return resp.text
 
 
-def _hash_content(content: str) -> str:
-    """Generate hash for content comparison."""
-    import hashlib
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
-
-
 async def refresh_url_source(source: Dict[str, Any], index_manager: Any) -> bool:
     """
     Refresh a single URL source - detect changes only, don't auto-index.
@@ -98,7 +68,7 @@ async def refresh_url_source(source: Dict[str, Any], index_manager: Any) -> bool
             source["pendingUpdate"] = False
             return False
         
-        content_hash = _hash_content(content)
+        content_hash = hash_content(content)
         
         # Create Document
         doc = Document(

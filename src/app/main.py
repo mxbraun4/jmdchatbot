@@ -85,7 +85,6 @@ class QueryResponse(BaseModel):
 
 class IndexJobRequest(BaseModel):
     force: bool = False
-    semantic: bool = False
     targetPaths: List[str] = Field(default_factory=list)
 
 
@@ -138,7 +137,6 @@ def _normalize_target_paths(target_paths: List[str]) -> List[str]:
 
 def _build_indexer_args(
     force: bool,
-    semantic: bool,
     target_paths: List[str],
 ) -> List[str]:
     if target_paths:
@@ -152,8 +150,6 @@ def _build_indexer_args(
     args = ["-m", "src.updater.advanced_jobs"]
     if force:
         args.append("--force")
-    if semantic:
-        args.append("--semantic")
     return args
 
 
@@ -340,7 +336,7 @@ async def start_index_job(req: IndexJobRequest) -> JSONResponse:
                 status_code=409,
             )
 
-    args = _build_indexer_args(req.force, req.semantic, target_paths)
+    args = _build_indexer_args(req.force, target_paths)
     command = [sys.executable, *args]
 
     try:

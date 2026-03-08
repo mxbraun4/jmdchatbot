@@ -1,12 +1,11 @@
-from .loader import (
-    load_local_documents,
-    load_web_documents,
-    load_all_documents,
+from .advanced_loader import (
+    load_local_documents_advanced,
+    load_web_documents_advanced,
+    load_all_documents_advanced,
 )
 
 __all__ = [
-    "load_local_documents",
-    "load_web_documents",
-    "load_all_documents",
+    "load_local_documents_advanced",
+    "load_web_documents_advanced",
+    "load_all_documents_advanced",
 ]
-

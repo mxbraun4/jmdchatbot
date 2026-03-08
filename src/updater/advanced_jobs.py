@@ -3,44 +3,30 @@ Advanced update job using LlamaIndex's parsing pipelines.
 
 This version uses:
 - SimpleDirectoryReader for automatic file type detection
-- Advanced chunking strategies (sentence or semantic splitting)
 - Better progress reporting
 - Support for multiple file formats (PDF, DOCX, PPTX, etc.)
 """
 
 import asyncio
 from datetime import datetime
-from typing import Optional
 
-from src.ingestion.advanced_loader import (
-    load_all_documents_advanced,
-    parse_documents_to_nodes,
-)
+from src.ingestion.advanced_loader import load_all_documents_advanced
 from src.indexing import get_index_manager
 
 
 async def run_advanced_update_job(
-    parser_type: str = "sentence",
     force_reindex: bool = False,
 ) -> None:
     """
     Advanced update routine with LlamaIndex parsing pipeline.
-    
+
     Args:
-        parser_type: Type of parser to use ('sentence' or 'semantic')
         force_reindex: If True, reindex all documents regardless of changes
-    
-    Features:
-    - Automatic file type detection (PDF, DOCX, TXT, MD, etc.)
-    - Advanced chunking strategies
-    - Incremental indexing (only processes changed documents)
-    - Better error handling and progress reporting
     """
     print()
     print("=" * 60)
     print("🚀 Starting Advanced Update Job")
     print(f"⏰ Time: {datetime.utcnow().isoformat()}")
-    print(f"🔧 Parser: {parser_type}")
     print(f"🔄 Force reindex: {force_reindex}")
     print("=" * 60)
     print()
@@ -81,15 +67,6 @@ async def run_advanced_update_job(
         
         print(f"📝 Found {len(changed_docs)} document(s) to process")
         print()
-        
-        # Optional: Parse documents into nodes (chunks) before indexing
-        # This gives you more control over the chunking process
-        # Uncomment the following lines to use custom chunking:
-        #
-        # print("✂️  Parsing documents into chunks...")
-        # nodes = parse_documents_to_nodes(changed_docs, parser_type=parser_type)
-        # print(f"   Created {len(nodes)} chunks")
-        # print()
         
         # Upsert documents into the index
         print("💾 Indexing documents...")
@@ -165,12 +142,9 @@ if __name__ == "__main__":
     # Parse command line arguments
     import sys
     
-    parser_type = "sentence"  # default
     force_reindex = False
-    
+
     if len(sys.argv) > 1:
-        if "--semantic" in sys.argv:
-            parser_type = "semantic"
         if "--force" in sys.argv:
             force_reindex = True
         if "--pdf-only" in sys.argv:
@@ -179,10 +153,9 @@ if __name__ == "__main__":
         if "--office-only" in sys.argv:
             asyncio.run(run_office_docs_job())
             sys.exit(0)
-    
+
     # Run the advanced update job
     asyncio.run(run_advanced_update_job(
-        parser_type=parser_type,
         force_reindex=force_reindex,
     ))
 

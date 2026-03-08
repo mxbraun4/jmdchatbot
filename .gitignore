@@ -36,9 +36,10 @@ venv.bak/
 .env.local
 .env.*.local
 
-# IDE
+# IDE / Tool config
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
